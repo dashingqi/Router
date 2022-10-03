@@ -3,16 +3,22 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
+        maven {
+            url uri("/Users/zhangqi/material/localAndroid/Router/repo")
+        }
     }
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        maven {
+            url uri("/Users/zhangqi/material/localAndroid/Router/repo")
+        }
         google()
         mavenCentral()
     }
 }
-rootProject.name = "ApplicationA"
+rootProject.name = "Router"
 include ':app'
 include ':router-annotation'
 include ':router-processor'

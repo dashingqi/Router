@@ -1,0 +1,69 @@
+// 在gradle7.0之后将 'maven' 插件给移除了 替代品是 'maven-publish'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+
+// aar的发布主要之后我们引用主要有三个部分
+// 1. groupID 2. artifact id 3. versionName
+// 作为一个发布插件来说，我个人认为groupID 是通用以及发布的地址（POM_URL），可放置在root 目录下的gradle.properties目录下
+// artifact id 和versionName是作为每一个发布aar工程特有的，需要单独维护，就放置在 工程/module的gradle.properties目录下
+
+
+def gradlePropertiesName = "gradle.properties"
+// 首先去读取rootProject中gradle.properties的内容
+Properties globalProperties = new Properties()
+globalProperties.load(project.rootProject.file(gradlePropertiesName).newDataInputStream())
+
+def pomUrl = globalProperties.getProperty("POM_URL")
+def groupID = globalProperties.getProperty("GROUP_ID")
+
+// 拿到每一个项目中的gradle.properties
+Properties projectProperties = new Properties()
+projectProperties.load(project.file(gradlePropertiesName).newDataInputStream())
+def versionName = projectProperties.getProperty("VERSION_NAME")
+def artifactID = projectProperties.getProperty("POM_ARTIFACT_ID")
+
+println("version name is $versionName")
+println("group id is $groupID")
+println("artifact id is $artifactID")
+println("pom url is $pomUrl")
+
+publishing {
+    // 配置maven仓库
+    repositories {
+        // 配置maven的仓库
+        maven {
+            url = "$pomUrl"
+        }
+    }
+
+    publications {
+        release(MavenPublication) {
+            groupId = groupID
+            artifactId = artifactID
+            version = versionName
+
+            def projectName = project.getName()
+            artifact "build/outputs/aar/${projectName}-release.aar"
+
+            pom.withXml{
+                def dependenciesNode = asNode().appendNode("dependencies")
+                configurations.implementation.allDependencies.forEach(){
+                    Dependency dependency ->
+                        if (dependency.version != "unspecified" && dependency.name != "unspecified"){
+                            def dependencyNode = dependenciesNode.appendNode('dependency')
+                            dependencyNode.appendNode('groupId', dependency.group)
+                            dependencyNode.appendNode('artifactId', dependency.name)
+                            dependencyNode.appendNode('version', dependency.version)
+                        }
+                }
+            }
+        }
+
+    }
+}
+//signing {
+//    sign publishing.publications
+//}
+
+
