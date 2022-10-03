@@ -23,6 +23,7 @@
     <bytecodeTargetLevel target="1.8">
       <module name="ApplicationA.app" target="11" />
       <module name="Router.app" target="11" />
+      <module name="Router.JavaKotlin" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>

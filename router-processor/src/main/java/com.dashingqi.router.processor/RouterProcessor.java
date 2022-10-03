@@ -22,7 +22,9 @@ import javax.lang.model.element.TypeElement;
 @AutoService(Processor.class)
 public class RouterProcessor extends AbstractProcessor {
 
-    /** TAG */
+    /**
+     * TAG
+     */
     private static final String TAG = "RouterProcessor";
 
     @Override
@@ -52,11 +54,11 @@ public class RouterProcessor extends AbstractProcessor {
             return false;
         }
 
-        System.out.println();
-
-
+        System.out.println(TAG + ">>>>> processor start");
         // 获取标注@Route注解类的信息
         Set<? extends Element> routeElement = roundEnvironment.getElementsAnnotatedWith(Route.class);
+
+        System.out.println("routeElement size is " + routeElement.size());
         // 当没有收集到Route注解类的信息时，就直接返回
         if (routeElement == null || routeElement.size() < 1) {
             return false;
@@ -95,6 +97,10 @@ public class RouterProcessor extends AbstractProcessor {
 
             // 获取当前注解的全类名
             String qualifiedName = typeElement.getQualifiedName().toString();
+
+            System.out.println("path is " + path);
+            System.out.println("description is " + description);
+            System.out.println("qualifiedName is " + qualifiedName);
             sb.append("        mapping.put(")
                     .append("\"" + path + "\"")
                     .append(", ")
@@ -106,6 +112,18 @@ public class RouterProcessor extends AbstractProcessor {
         sb.append("        return mapping;\n\n");
         sb.append("    }");
         sb.append("}");
+
+        System.out.println(sb.toString());
+
+        // 写入文件
+        try{
+
+        }catch (Exception exception){
+
+        }
+
+
+        System.out.println(TAG + ">>>>> processor end");
 
 
         return true;
