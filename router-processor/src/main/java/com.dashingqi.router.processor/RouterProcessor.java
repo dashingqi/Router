@@ -3,6 +3,8 @@ package com.dashingqi.router.processor;
 import com.dashingqi.router.annotation.Route;
 import com.google.auto.service.AutoService;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.Set;
 
@@ -13,6 +15,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.tools.JavaFileObject;
 
 /**
  * @author zhangqi61
@@ -71,17 +74,17 @@ public class RouterProcessor extends AbstractProcessor {
 
         // 添加导入的包名
         sb.append("import java.util.HashMap;\n");
-        sb.append("import java.util.Map;\n");
+        sb.append("import java.util.Map;\n\n");
 
         // 添加类信息
         String className = "RoutersMapping_" + System.currentTimeMillis();
-        sb.append("  public class " + className + " {\n");
+        sb.append("  public class " + className + " {\n\n");
 
         // 构建方法
-        sb.append("    public static Map<String, String> get() { \n\n");
+        sb.append("      public static Map<String, String> get() { \n\n");
 
         // 构建方法实现
-        sb.append("      HashMap<String, String> mapping = new HashMap<>();\n\n");
+        sb.append("        HashMap<String, String> mapping = new HashMap<>();\n\n");
 
         for (Element element : routeElement) {
             final TypeElement typeElement = (TypeElement) element;
@@ -110,15 +113,31 @@ public class RouterProcessor extends AbstractProcessor {
         }
 
         sb.append("        return mapping;\n\n");
-        sb.append("    }");
+        sb.append("    }\n\n");
         sb.append("}");
 
         System.out.println(sb.toString());
 
+        String classFullName = "com.dashingqi.router.mapping." + className;
+        Writer writer = null;
         // 写入文件
-        try{
+        try {
+            JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(classFullName);
+            writer = sourceFile.openWriter();
+            writer.write(sb.toString());
+            writer.flush();
 
-        }catch (Exception exception){
+        } catch (Exception exception) {
+            exception.printStackTrace();
+
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
 
         }
 
