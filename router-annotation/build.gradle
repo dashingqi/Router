@@ -2,6 +2,18 @@ plugins {
     id 'java'
 }
 
+ext
+        {
+            PUBLISH_GROUP_ID = "io.github.dashingqi"        //项目包名
+            PUBLISH_ARTIFACT_ID = 'router-annotation'            //项目名
+            PUBLISH_VERSION = '0.0.1'
+        }
+// apply from: "publish-mavencentral.gradle"
+
+//android {
+//
+//}
+
 targetCompatibility = JavaVersion.VERSION_1_8
 sourceCompatibility = JavaVersion.VERSION_1_8
 

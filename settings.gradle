@@ -22,3 +22,4 @@ rootProject.name = "Router"
 include ':app'
 include ':router-annotation'
 include ':router-processor'
+include ':router-annotations'
