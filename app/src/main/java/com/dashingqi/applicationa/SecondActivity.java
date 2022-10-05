@@ -4,6 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
+import com.dashingqi.router.annotation.Route;
+
+
+@Route(path = "home/second", description = "SecondPage")
 public class SecondActivity extends AppCompatActivity {
 
     @Override

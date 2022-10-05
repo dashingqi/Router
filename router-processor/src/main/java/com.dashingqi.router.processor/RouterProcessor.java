@@ -2,7 +2,12 @@ package com.dashingqi.router.processor;
 
 import com.dashingqi.router.annotation.Route;
 import com.google.auto.service.AutoService;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collections;
@@ -58,6 +63,11 @@ public class RouterProcessor extends AbstractProcessor {
         }
 
         System.out.println(TAG + ">>>>> processor start");
+
+        // 获取传递的路径参数
+        String rootProjectDir = processingEnv.getOptions().get("root_project_dir");
+
+
         // 获取标注@Route注解类的信息
         Set<? extends Element> routeElement = roundEnvironment.getElementsAnnotatedWith(Route.class);
 
@@ -86,6 +96,9 @@ public class RouterProcessor extends AbstractProcessor {
         // 构建方法实现
         sb.append("        HashMap<String, String> mapping = new HashMap<>();\n\n");
 
+
+        JsonArray itemArray = new JsonArray();
+
         for (Element element : routeElement) {
             final TypeElement typeElement = (TypeElement) element;
             final Route routeAnnotation = typeElement.getAnnotation(Route.class);
@@ -104,11 +117,14 @@ public class RouterProcessor extends AbstractProcessor {
             System.out.println("path is " + path);
             System.out.println("description is " + description);
             System.out.println("qualifiedName is " + qualifiedName);
-            sb.append("        mapping.put(")
-                    .append("\"" + path + "\"")
-                    .append(", ")
-                    .append("\"" + qualifiedName + "\"")
-                    .append(");\n\n");
+            sb.append("        mapping.put(").append("\"" + path + "\"").append(", ").append("\"" + qualifiedName + "\"").append(");\n\n");
+
+            JsonObject item = new JsonObject();
+            item.addProperty("path", path);
+            item.addProperty("description", description);
+            item.addProperty("realPath", qualifiedName);
+
+            itemArray.add(item);
 
         }
 
@@ -116,15 +132,29 @@ public class RouterProcessor extends AbstractProcessor {
         sb.append("    }\n\n");
         sb.append("}");
 
-        System.out.println(sb.toString());
-
+        System.out.println(sb);
         String classFullName = "com.dashingqi.router.mapping." + className;
+        buildFile(sb.toString(), classFullName);
+
+
+        // 把JSON数据写入到本地文件中
+        String jsonName = "mapping_" + System.currentTimeMillis() + ".json";
+        buildRouteDocument(rootProjectDir, jsonName, itemArray.toString());
+
+        System.out.println(TAG + ">>>>> processor end");
+
+
+        return true;
+    }
+
+
+    private void buildFile(String file, String classFullName) {
         Writer writer = null;
         // 写入文件
         try {
             JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(classFullName);
             writer = sourceFile.openWriter();
-            writer.write(sb.toString());
+            writer.write(file.toString());
             writer.flush();
 
         } catch (Exception exception) {
@@ -140,11 +170,32 @@ public class RouterProcessor extends AbstractProcessor {
             }
 
         }
+    }
 
+    /**
+     * 生成页面路由文档
+     *
+     * @param rootDir  放置的根目录
+     * @param jsonName json 文件的名字
+     */
+    private void buildRouteDocument(String rootDir, String jsonName, String jsonStr) {
 
-        System.out.println(TAG + ">>>>> processor end");
+        try {
+            File rootFile = new File(rootDir);
+            if (!rootFile.exists()) return;
+            File routerDirJSONFile = new File(rootFile, "router_document");
+            if (!routerDirJSONFile.exists()) {
+                routerDirJSONFile.mkdir();
+            }
 
-
-        return true;
+            // 生成文档JSON文件
+            File jsonFile = new File(routerDirJSONFile, jsonName);
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(jsonFile));
+            bufferedWriter.write(jsonStr);
+            bufferedWriter.flush();
+            bufferedWriter.close();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
     }
 }

@@ -2,6 +2,12 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
+    id 'com.dashingqi.router'
+}
+
+// 使用Extension
+router {
+    wikiDir getRootDir().absolutePath
 }
 
 android {
@@ -29,6 +35,14 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+
+
+    // 传递路径参数
+    kapt {
+        arguments {
+            arg("root_project_dir", rootProject.rootDir.absolutePath)
+        }
     }
 }
 

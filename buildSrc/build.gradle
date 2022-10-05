@@ -1,0 +1,15 @@
+plugins {
+    id 'groovy'
+}
+
+// 声明仓库地址
+repositories {
+    mavenCentral()
+    google()
+    jcenter()
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+}
