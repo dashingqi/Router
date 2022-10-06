@@ -39,11 +39,11 @@ android {
 
 
     // 传递路径参数
-    kapt {
-        arguments {
-            arg("root_project_dir", rootProject.rootDir.absolutePath)
-        }
-    }
+//    kapt {
+//        arguments {
+//            arg("root_project_dir", rootProject.rootDir.absolutePath)
+//        }
+//    }
 }
 
 dependencies {
