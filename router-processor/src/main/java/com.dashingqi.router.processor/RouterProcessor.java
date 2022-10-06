@@ -148,6 +148,11 @@ public class RouterProcessor extends AbstractProcessor {
     }
 
 
+    /**
+     * 编译期间生成的文件
+     * @param file 文件内容
+     * @param classFullName 类名
+     */
     private void buildFile(String file, String classFullName) {
         Writer writer = null;
         // 写入文件
